@@ -2,7 +2,10 @@ package com.an.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -11,13 +14,19 @@ import android.widget.Toast;
  */
 public class StreamServices extends Service {
 
-    /** interface for clients that bind */
+    /**
+     * interface for clients that bind
+     */
     public IBinder mBinder;
 
-    /** indicates whether onRebind should be used */
+    /**
+     * indicates whether onRebind should be used
+     */
     public boolean mAllowRebind;
 
-    /** prepare value*/
+    /**
+     * prepare value
+     */
     private final String TAG = "StreamServices";
     public static final String STRING_ACTION = "STRING_ACTION";
     public static final String DATA_LABEL = "DATA";
@@ -28,20 +37,25 @@ public class StreamServices extends Service {
 
     /**
      * This services are Singleton
+     *
      * @return
      */
-    public StreamServices getInstance(){
-        if(instances==null)
+    public StreamServices getInstance() {
+        if (instances == null)
             return new StreamServices();
         return instances;
     }
 
-    /** Called when the service is being created. */
+    /**
+     * Called when the service is being created.
+     */
     @Override
     public void onCreate() {
     }
 
-    /** The service is starting, due to a call to startService() */
+    /**
+     * The service is starting, due to a call to startService()
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
@@ -57,15 +71,11 @@ public class StreamServices extends Service {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (isThreadRunning){
-                    try{
+                while (isThreadRunning) {
+                    try {
                         Thread.sleep(2000);
-                        intent = new Intent();
-                        intent.setAction(STRING_ACTION);
-                        int range = (1000 - 0) + 1;
-                        intent.putExtra(DATA_LABEL,""+(Math.random()*range)+0);
-                        sendBroadcast(intent);
-                    }catch (Exception e){
+                        takePhoto();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -77,36 +87,94 @@ public class StreamServices extends Service {
     /**
      * Stop thread
      */
-    private void stopThread(){
-        if(thread!=null&&thread.isAlive()){
+    private void stopThread() {
+        if (thread != null && thread.isAlive()) {
             thread.interrupt();
         }
     }
 
-    /** A client is binding to the service with bindService() */
+    /**
+     * A client is binding to the service with bindService()
+     */
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
-    /** Called when all clients have unbound with unbindService() */
+    /**
+     * Called when all clients have unbound with unbindService()
+     */
     @Override
     public boolean onUnbind(Intent intent) {
         return mAllowRebind;
     }
 
-    /** Called when a client is binding to the service with bindService()*/
+    /**
+     * Called when a client is binding to the service with bindService()
+     */
     @Override
     public void onRebind(Intent intent) {
 
     }
 
-    /** Called when The service is no longer used and is being destroyed */
+    /**
+     * Called when The service is no longer used and is being destroyed
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
         isThreadRunning = false;
         stopThread();
         Toast.makeText(this, "Service Destroyed", Toast.LENGTH_SHORT).show();
+    }
+
+    private void takePhoto() {
+        Log.d(TAG, "Preparing to take photo");
+        Camera camera = null;
+        int cameraCount = 0;
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        cameraCount = Camera.getNumberOfCameras();
+        for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+            SystemClock.sleep(1000);
+
+            Camera.getCameraInfo(camIdx, cameraInfo);
+
+            try {
+                camera = Camera.open(camIdx);
+            } catch (RuntimeException e) {
+                Log.d(TAG, "Camera not available: " + camIdx);
+                camera = null;
+                //e.printStackTrace();
+            }
+            try {
+                if (null == camera) {
+                    Log.d(TAG, "Could not get camera instance");
+                } else {
+                    Log.d(TAG, "Got the camera, creating the dummy surface texture");
+                    //SurfaceTexture dummySurfaceTextureF = new SurfaceTexture(0);
+                    try {
+                        //camera.setPreviewTexture(dummySurfaceTextureF);
+                        camera.setPreviewTexture(new SurfaceTexture(0));
+                        camera.startPreview();
+                    } catch (Exception e) {
+                        Log.d(TAG, "Could not set the surface preview texture");
+                        e.printStackTrace();
+                    }
+                    camera.takePicture(null, null, new Camera.PictureCallback() {
+
+                        @Override
+                        public void onPictureTaken(byte[] data, Camera camera) {
+                            intent = new Intent();
+                            intent.setAction(STRING_ACTION);
+                            intent.putExtra(DATA_LABEL, data);
+                            sendBroadcast(intent);
+                            camera.release();
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                camera.release();
+            }
+        }
     }
 }
