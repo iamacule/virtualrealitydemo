@@ -34,6 +34,8 @@ public class StreamServices extends Service {
     private boolean isThreadRunning = false;
     public static StreamServices instances;
     private Intent intent;
+    private int backCamId = 0;
+    private Camera camera;
 
     /**
      * This services are Singleton
@@ -51,6 +53,7 @@ public class StreamServices extends Service {
      */
     @Override
     public void onCreate() {
+        intent = new Intent();
     }
 
     /**
@@ -60,8 +63,41 @@ public class StreamServices extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
         isThreadRunning = true;
+        startCamera();
         startThread();
         return START_STICKY;
+    }
+
+    private void startCamera() {
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+
+        Camera.getCameraInfo(getBackCameraId(), cameraInfo);
+        try {
+            camera = Camera.open(getBackCameraId());
+            try {
+                if (null == camera) {
+                    Log.d(TAG, "Could not get camera instance");
+                } else {
+                    Log.d(TAG, "Got the camera, creating the dummy surface texture");
+                    //SurfaceTexture dummySurfaceTextureF = new SurfaceTexture(0);
+                    try {
+                        //camera.setPreviewTexture(dummySurfaceTextureF);
+                        camera.setPreviewTexture(new SurfaceTexture(0));
+                        camera.startPreview();
+                    } catch (Exception e) {
+                        Log.d(TAG, "Could not set the surface preview texture");
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                camera.release();
+            }
+        } catch (RuntimeException e) {
+            Log.d(TAG, "Camera not available: " + getBackCameraId());
+            e.printStackTrace();
+            camera = null;
+        }
     }
 
     /**
@@ -73,7 +109,7 @@ public class StreamServices extends Service {
             public void run() {
                 while (isThreadRunning) {
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                         takePhoto();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -128,53 +164,41 @@ public class StreamServices extends Service {
         Toast.makeText(this, "Service Destroyed", Toast.LENGTH_SHORT).show();
     }
 
+    private int getBackCameraId(){
+        if(backCamId!=0)
+            return backCamId;
+        else {
+            int numberOfCameras = Camera.getNumberOfCameras();
+            Camera.CameraInfo ci = new Camera.CameraInfo();
+
+            for(int i = 0;i < numberOfCameras;i++){
+                Camera.getCameraInfo(i,ci);
+                if(ci.facing == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    backCamId = i;
+                }
+            }
+            return backCamId;
+        }
+    }
+
     private void takePhoto() {
         Log.d(TAG, "Preparing to take photo");
-        Camera camera = null;
-        int cameraCount = 0;
-        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-        cameraCount = Camera.getNumberOfCameras();
-        for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
-            SystemClock.sleep(1000);
-
-            Camera.getCameraInfo(camIdx, cameraInfo);
-
-            try {
-                camera = Camera.open(camIdx);
-            } catch (RuntimeException e) {
-                Log.d(TAG, "Camera not available: " + camIdx);
-                camera = null;
-                //e.printStackTrace();
-            }
-            try {
-                if (null == camera) {
-                    Log.d(TAG, "Could not get camera instance");
-                } else {
-                    Log.d(TAG, "Got the camera, creating the dummy surface texture");
-                    //SurfaceTexture dummySurfaceTextureF = new SurfaceTexture(0);
-                    try {
-                        //camera.setPreviewTexture(dummySurfaceTextureF);
-                        camera.setPreviewTexture(new SurfaceTexture(0));
-                        camera.startPreview();
-                    } catch (Exception e) {
-                        Log.d(TAG, "Could not set the surface preview texture");
-                        e.printStackTrace();
+        try {
+            if (null == camera) {
+                Log.d(TAG, "Could not get camera instance");
+            } else {
+                camera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        intent.setAction(STRING_ACTION);
+                        intent.putExtra(DATA_LABEL, data);
+                        sendBroadcast(intent);
                     }
-                    camera.takePicture(null, null, new Camera.PictureCallback() {
-
-                        @Override
-                        public void onPictureTaken(byte[] data, Camera camera) {
-                            intent = new Intent();
-                            intent.setAction(STRING_ACTION);
-                            intent.putExtra(DATA_LABEL, data);
-                            sendBroadcast(intent);
-                            camera.release();
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                camera.release();
+                });
             }
+        } catch (Exception e) {
+            camera.release();
+            startCamera();
         }
     }
 }

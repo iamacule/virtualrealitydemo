@@ -6,12 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,6 +31,7 @@ public class ViewActivity extends AppCompatActivity {
     private ViewActivity viewActivity;
     private DataReceiver dataReceiver;
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
+    private final String TAG = "ViewActivity";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,7 +124,11 @@ public class ViewActivity extends AppCompatActivity {
         public void onReceive(Context arg0, Intent arg1) {
             // TODO Auto-generated method stub
             byte[] data = arg1.getByteArrayExtra(StreamServices.DATA_LABEL);
-            Toast.makeText(viewActivity, data.toString(), Toast.LENGTH_LONG).show();
+            Bitmap bp = BitmapFactory.decodeByteArray(data,0,data.length);
+            if (bp!=null){
+                Log.d(TAG,"Bitmap not null");
+                imgPreview.setImageBitmap(bp);
+            }
         }
 
     }
