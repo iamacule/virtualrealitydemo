@@ -12,7 +12,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.OrientationEventListener;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -110,10 +109,6 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
                 @Override
                 public void onOrientationChanged(int orientation) {
-
-                    // determine our orientation based on sensor response
-                    int lastOrientation = mOrientation;
-
                     if (orientation >= 315 || orientation < 45) {
                         if (mOrientation != ORIENTATION_PORTRAIT_NORMAL) {
                             mOrientation = ORIENTATION_PORTRAIT_NORMAL;
@@ -131,10 +126,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
                             mOrientation = ORIENTATION_LANDSCAPE_INVERTED;
                         }
                     }
-
-                    if (lastOrientation != mOrientation) {
-                        changeRotation(mOrientation, lastOrientation);
-                    }
+                    changeRotation(mOrientation);
                 }
             };
         }
@@ -153,9 +145,8 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
      * Performs required action to accommodate new orientation
      *
      * @param orientation
-     * @param lastOrientation
      */
-    private void changeRotation(int orientation, int lastOrientation) {
+    private void changeRotation(int orientation) {
         switch (orientation) {
             case ORIENTATION_PORTRAIT_NORMAL:
                 camera.setDisplayOrientation(90);

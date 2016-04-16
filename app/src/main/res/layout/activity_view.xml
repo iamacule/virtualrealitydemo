@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ImageView
+    <SurfaceView
         android:layout_margin="15sp"
-        android:id="@+id/imgPreview"
+        android:id="@+id/surStream"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.9"/>
