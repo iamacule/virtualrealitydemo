@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
+import android.util.Log;
+
+import com.an.util.DataUtil;
 
 /**
  * Created by MrAn on 19-Apr-16.
@@ -14,6 +18,7 @@ public class DrawFocus implements Draw {
     private Paint paintMidpoint;
     private int width;
     private int height;
+    private Point point;
 
     public DrawFocus(Activity activity) {
         this.activity = activity;
@@ -29,6 +34,19 @@ public class DrawFocus implements Draw {
         width = canvas.getWidth();
         height = canvas.getHeight();
         drawData(canvas);
+        setListRange();
+    }
+
+    private void setListRange() {
+        if(DataUtil.listRangeFocus.size()<=0){
+            for (int i = width/4 ; i<width*3/4 ; i++){
+                for (int j = height*3/8 ; j<height*5/8 ; j++){
+                    point = new Point(i,j);
+                    DataUtil.listRangeFocus.add(point);
+                    Log.d("Add range data",""+point.x + " : "+point.y);
+                }
+            }
+        }
     }
 
     private void drawData(Canvas canvas) {

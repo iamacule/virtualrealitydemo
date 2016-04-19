@@ -160,19 +160,15 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         switch (orientation) {
             case ORIENTATION_PORTRAIT_NORMAL:
                 camera.setDisplayOrientation(90);
-                Log.d(TAG, "Orientation = 90");
                 break;
             case ORIENTATION_LANDSCAPE_NORMAL:
                 camera.setDisplayOrientation(0);
-                Log.d(TAG, "Orientation = 0");
                 break;
             case ORIENTATION_PORTRAIT_INVERTED:
                 camera.setDisplayOrientation(270);
-                Log.d(TAG, "Orientation = 270");
                 break;
             case ORIENTATION_LANDSCAPE_INVERTED:
                 camera.setDisplayOrientation(180);
-                Log.d(TAG, "Orientation = 180");
                 break;
         }
     }
