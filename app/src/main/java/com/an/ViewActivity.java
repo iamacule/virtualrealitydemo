@@ -2,6 +2,8 @@ package com.an;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -35,6 +37,9 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private LinearLayout lnDraw;
     private DrawMain drawMain;
     private Button btnBack;
+    private Thread threadRecord;
+    private Bitmap bpData;
+    private boolean acceptRecord = true;
     private ViewActivity viewActivity;
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     private final int MY_PERMISSIONS_REQUEST_STORAGE = 2;
@@ -58,7 +63,26 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_STORAGE);
         initParameter();
         addPictureCallBack();
+        record();
         setOnClick();
+    }
+
+    private void record() {
+        threadRecord = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (acceptRecord){
+                    try{
+                        Thread.sleep(2000);
+                        captureImage();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        threadRecord = null;
+                    }
+                }
+            }
+        });
+        threadRecord.start();
     }
 
     private void setOnClick() {
@@ -73,19 +97,10 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private void addPictureCallBack() {
         jpegCallback = new Camera.PictureCallback() {
             public void onPictureTaken(byte[] data, Camera camera) {
-                FileOutputStream outStream = null;
-                try {
-                    outStream = new FileOutputStream(String.format("/sdcard/%d.jpg", System.currentTimeMillis()));
-                    outStream.write(data);
-                    outStream.close();
-                    Log.d(TAG, "onPictureTaken - wrote bytes: " + data.length);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
+                bpData = BitmapFactory.decodeByteArray(data,0,data.length);
+                if(bpData!=null){
+                    Log.d("Get bitmap data success",""+bpData.toString());
                 }
-                Toast.makeText(getApplicationContext(), "Picture Saved", Toast.LENGTH_SHORT).show();
                 refreshCamera();
             }
         };
@@ -149,6 +164,16 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     protected void onPause() {
         super.onPause();
         mOrientationEventListener.disable();
+        stopRecord();
+    }
+
+    private void stopRecord(){
+        if(threadRecord!=null&&threadRecord.isAlive()){
+            threadRecord.interrupt();
+            threadRecord = null;
+            Log.d("Stop record","");
+        }
+        acceptRecord = false;
     }
 
     /**
@@ -173,8 +198,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 
-    public void captureImage(View v) throws IOException {
-        //take the picture
+    public void captureImage() throws IOException {
         camera.takePicture(null, null, jpegCallback);
     }
 

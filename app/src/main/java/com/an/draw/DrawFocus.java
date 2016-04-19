@@ -1,10 +1,12 @@
 package com.an.draw;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.an.util.DataUtil;
@@ -19,9 +21,11 @@ public class DrawFocus implements Draw {
     private int width;
     private int height;
     private Point point;
+    private ProgressDialog progressDialog;
 
     public DrawFocus(Activity activity) {
         this.activity = activity;
+        progressDialog = new ProgressDialog(activity);
         paintFocus = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintFocus.setColor(Color.WHITE);
         paintFocus.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -38,15 +42,7 @@ public class DrawFocus implements Draw {
     }
 
     private void setListRange() {
-        if(DataUtil.listRangeFocus.size()<=0){
-            for (int i = width/4 ; i<width*3/4 ; i++){
-                for (int j = height*3/8 ; j<height*5/8 ; j++){
-                    point = new Point(i,j);
-                    DataUtil.listRangeFocus.add(point);
-                    Log.d("Add range data",""+point.x + " : "+point.y);
-                }
-            }
-        }
+        new SetListRangeAsync().execute(new Void[]{});
     }
 
     private void drawData(Canvas canvas) {
@@ -67,5 +63,36 @@ public class DrawFocus implements Draw {
     @Override
     public void update() {
 
+    }
+
+    private class SetListRangeAsync extends AsyncTask<Void,Void,Boolean>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage("Please wait");
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            if(DataUtil.listRangeFocus.size()<=0){
+                for (int i = width/4 ; i<width*3/4 ; i++){
+                    for (int j = height*3/8 ; j<height*5/8 ; j++){
+                        point = new Point(i,j);
+                        DataUtil.listRangeFocus.add(point);
+                        Log.d("Add range data",""+point.x + " : "+point.y);
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if(progressDialog.isShowing())
+                progressDialog.dismiss();
+        }
     }
 }
