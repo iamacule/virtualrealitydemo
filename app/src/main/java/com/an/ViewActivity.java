@@ -16,7 +16,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.an.draw.DrawFocus;
+import com.an.draw.DrawMain;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,6 +32,8 @@ import java.io.IOException;
  */
 public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     private SurfaceView surfaceView;
+    private LinearLayout lnDraw;
+    private DrawMain drawMain;
     private Button btnBack;
     private ViewActivity viewActivity;
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
@@ -87,6 +94,9 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private void initParameter() {
         viewActivity = this;
         surfaceView = (SurfaceView) findViewById(R.id.surStream);
+        lnDraw = (LinearLayout)findViewById(R.id.lnDraw);
+        drawMain = new DrawMain(getApplicationContext(),this);
+        lnDraw.addView(drawMain);
         btnBack = (Button) findViewById(R.id.btnBack);
         surfaceHolder = surfaceView.getHolder();
         // Install a SurfaceHolder.Callback so we get notified when the
