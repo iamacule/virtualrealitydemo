@@ -61,23 +61,27 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         setOnClick();
     }
 
+
+    /**
+     * Start a thread to record and get bitmap from camera
+     */
     public void record() {
         threadRecord = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (acceptRecord){
-                    try{
+                while (acceptRecord) {
+                    try {
                         Thread.sleep(2000);
-                        Log.d(TAG,"Recording");
+                        Log.d(TAG, "Recording");
                         captureImage();
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
         });
         threadRecord.start();
-        Log.d(TAG,"Record started");
+        Log.d(TAG, "Record started");
     }
 
     private void setOnClick() {
@@ -89,31 +93,42 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         });
     }
 
+    /**
+     * Get bitmap from camera
+     */
     private void addPictureCallBack() {
         jpegCallback = new Camera.PictureCallback() {
             public void onPictureTaken(byte[] data, Camera camera) {
                 bpData = BitmapFactory.decodeByteArray(data, 0, data.length);
-                if(bpData!=null && !isDataAvailable){
+                if (bpData != null && !isDataAvailable) {
+
+                    //True size from camera
                     bpData = rotateBitmap(bpData);
-                    bpData = ResizeBitmap.resize(bpData, DataUtil.screenWidth/4);
+
+                    //Resize to show in the dialog
+                    bpData = ResizeBitmap.resize(bpData, DataUtil.screenWidth / 4);
+
                     refreshCamera();
-                    Log.d("Get bitmap data success",""+bpData.toString());
+                    Log.d("Get bitmap data success", "" + bpData.toString());
                     acceptRecord = false;
                     isDataAvailable = true;
-                    DialogInfo.createDialogOneButton(viewActivity,"Image",bpData);
+                    DialogInfo.createDialogOneButton(viewActivity, "Image", bpData);
                     DialogInfo.show();
                 }
             }
         };
     }
 
+    /**
+     * Init value from begin
+     */
     private void initParameter() {
         viewActivity = this;
         matrix = new Matrix();
         matrix.postRotate(90);
         surfaceView = (SurfaceView) findViewById(R.id.surStream);
-        lnDraw = (LinearLayout)findViewById(R.id.lnDraw);
-        drawMain = new DrawMain(getApplicationContext(),this);
+        lnDraw = (LinearLayout) findViewById(R.id.lnDraw);
+        drawMain = new DrawMain(getApplicationContext(), this);
         lnDraw.addView(drawMain);
         btnBack = (Button) findViewById(R.id.btnBack);
         surfaceHolder = surfaceView.getHolder();
@@ -130,24 +145,40 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         stopRecord();
     }
 
-    private void stopRecord(){
-        if(threadRecord!=null&&threadRecord.isAlive()){
+    /**
+     * Stop thread record
+     */
+    private void stopRecord() {
+        if (threadRecord != null && threadRecord.isAlive()) {
             threadRecord.interrupt();
             threadRecord = null;
         }
         acceptRecord = false;
-        Log.d(TAG,"Record stopped");
+        Log.d(TAG, "Record stopped");
     }
 
-    public Bitmap rotateBitmap(Bitmap source)
-    {
+    /**
+     * Rotate bitmap with 90 degree
+     *
+     * @param source
+     * @return
+     */
+    public Bitmap rotateBitmap(Bitmap source) {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
+    /**
+     * Capture image
+     *
+     * @throws IOException
+     */
     public void captureImage() throws IOException {
         camera.takePicture(null, null, jpegCallback);
     }
 
+    /**
+     * Refresh camera when capture image success
+     */
     public void refreshCamera() {
         if (surfaceHolder.getSurface() == null) {
             // preview surface does not exist
@@ -169,6 +200,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 
+
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // Now that the size is known, set up the camera parameters and begin
         // the preview.
@@ -176,6 +208,11 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         camera.setDisplayOrientation(getRotationAngle());
     }
 
+    /**
+     * Get an rotation angle
+     *
+     * @return
+     */
     public int getRotationAngle() {
         android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, info);
@@ -236,6 +273,12 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         camera = null;
     }
 
+    /**
+     * Checking permission working with device over API 23
+     *
+     * @param permission
+     * @param idCallback
+     */
     private void checkPermission(String permission, int idCallback) {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
