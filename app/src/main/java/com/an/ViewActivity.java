@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.an.dialog.DialogInfo;
 import com.an.draw.DrawMain;
 import com.an.util.DataUtil;
-import com.an.util.ResizeBitmap;
 
 import java.io.IOException;
 
@@ -38,7 +37,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private Button btnBack;
     private Thread threadRecord;
     private Bitmap bpData;
-    public static boolean acceptRecord = false;
+    public static boolean acceptRecord = true;
     public static ViewActivity viewActivity;
     public static boolean isDataAvailable = false;
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
@@ -59,6 +58,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         initParameter();
         addPictureCallBack();
         setOnClick();
+        record();
     }
 
 
@@ -106,7 +106,11 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     bpData = rotateBitmap(bpData);
 
                     //Resize to show in the dialog
-                    bpData = ResizeBitmap.resize(bpData, DataUtil.screenWidth / 4);
+//                    bpData = ResizeBitmap.resize(bpData, DataUtil.screenWidth / 4);
+
+                    //Crop bitmap
+                    cropBitmap(bpData);
+                    bpData = Bitmap.createBitmap(bpData, DataUtil.cropX, DataUtil.cropY, DataUtil.cropWidth, DataUtil.cropHeight);
 
                     refreshCamera();
                     Log.d("Get bitmap data success", "" + bpData.toString());
@@ -117,6 +121,18 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 }
             }
         };
+    }
+
+    /**
+     * Crop bitmap
+     */
+    private void cropBitmap(Bitmap bitmap) {
+        if (DataUtil.cropX <= 0) {
+            DataUtil.cropX = bitmap.getWidth() / 4;
+            DataUtil.cropY = bitmap.getHeight() * 3 / 8;
+            DataUtil.cropWidth = bitmap.getWidth() / 2;
+            DataUtil.cropHeight = bitmap.getHeight() / 4;
+        }
     }
 
     /**

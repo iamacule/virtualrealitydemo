@@ -39,7 +39,7 @@ public class DrawFocus implements Draw {
         width = canvas.getWidth();
         height = canvas.getHeight();
         drawData(canvas);
-        setListRange();
+//        setListRange();
     }
 
     private void setListRange() {
