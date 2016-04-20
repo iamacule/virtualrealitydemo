@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.an.draw.DrawMain;
 import com.an.model.ViewModel;
 import com.an.util.DataUtil;
+import com.an.util.ResizeBitmap;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -215,6 +216,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     private void createListModel() {
         listModel = new ArrayList<>();
+
         ViewModel covisoft = new ViewModel();
         covisoft.setBpView(BitmapFactory.decodeResource(getResources(),R.mipmap.covisoft_logo));
         DataUtil.stringTemp = new StringBuffer();
@@ -224,8 +226,52 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         covisoft.setId(DataUtil.stringTemp.toString());
-        Log.d(TAG,"String id : "+covisoft.getId());
+
+        ViewModel barcelona = new ViewModel();
+        barcelona.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.barcelona),
+                                DataUtil.screenWidth/3));
+        DataUtil.stringTemp = new StringBuffer();
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        barcelona.setId(DataUtil.stringTemp.toString());
+
+        ViewModel chelsea = new ViewModel();
+        chelsea.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.chelsea),
+                DataUtil.screenWidth/3));
+        DataUtil.stringTemp = new StringBuffer();
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        chelsea.setId(DataUtil.stringTemp.toString());
+
+        ViewModel mu = new ViewModel();
+        mu.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.mu),
+                DataUtil.screenWidth/3));
+        DataUtil.stringTemp = new StringBuffer();
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        mu.setId(DataUtil.stringTemp.toString());
+
+        ViewModel real = new ViewModel();
+        real.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.real),
+                DataUtil.screenWidth/3));
+        DataUtil.stringTemp = new StringBuffer();
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        real.setId(DataUtil.stringTemp.toString());
+
         listModel.add(covisoft);
+        listModel.add(barcelona);
+        listModel.add(chelsea);
+        listModel.add(mu);
+        listModel.add(real);
     }
 
     @Override
