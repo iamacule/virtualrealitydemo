@@ -59,6 +59,13 @@ public class DrawFocus implements Draw {
 
         //Draw midpoint
         canvas.drawCircle(width/2,height/2,width/30,paintMidpoint);
+
+        //Draw QRCode area
+        canvas.drawRect((width/4)+(width/50),
+                        (height*3/8)+(width/50),
+                        (width/4)+(width/8) ,
+                        (height*3/8)+(width/8),
+                        paintMidpoint);
     }
 
     @Override

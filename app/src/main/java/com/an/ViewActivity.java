@@ -108,16 +108,20 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     //Resize to show in the dialog
 //                    bpData = ResizeBitmap.resize(bpData, DataUtil.screenWidth / 4);
 
-                    //Crop bitmap
+                    /*
+                        Crop bitmap at QRCode area for detect
+                     */
                     cropBitmap(bpData);
                     bpData = Bitmap.createBitmap(bpData, DataUtil.cropX, DataUtil.cropY, DataUtil.cropWidth, DataUtil.cropHeight);
 
+                    //Refresh camera after get bitmap
                     refreshCamera();
-                    Log.d("Get bitmap data success", "" + bpData.toString());
-                    acceptRecord = false;
-                    isDataAvailable = true;
-                    DialogInfo.createDialogOneButton(viewActivity, "Image", bpData);
-                    DialogInfo.show();
+
+                    //Preview bitmap
+//                    acceptRecord = false;
+//                    isDataAvailable = true;
+//                    DialogInfo.createDialogOneButton(viewActivity, "Image", bpData);
+//                    DialogInfo.show();
                 }
             }
         };
@@ -128,10 +132,10 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
      */
     private void cropBitmap(Bitmap bitmap) {
         if (DataUtil.cropX <= 0) {
-            DataUtil.cropX = bitmap.getWidth() / 4;
-            DataUtil.cropY = bitmap.getHeight() * 3 / 8;
-            DataUtil.cropWidth = bitmap.getWidth() / 2;
-            DataUtil.cropHeight = bitmap.getHeight() / 4;
+            DataUtil.cropX = (bitmap.getWidth() / 4) + (bitmap.getWidth() / 50);
+            DataUtil.cropY = (bitmap.getHeight() * 3 / 8) + (bitmap.getWidth() / 50);
+            DataUtil.cropWidth = (bitmap.getWidth() / 8);
+            DataUtil.cropHeight = (bitmap.getWidth() / 8);
         }
     }
 
