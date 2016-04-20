@@ -2,12 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <SurfaceView
-        android:layout_margin="15sp"
-        android:id="@+id/surStream"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.9"/>
+        android:layout_weight="0.9">
+        <SurfaceView
+            android:layout_margin="15dp"
+            android:id="@+id/surStream"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <LinearLayout
+            android:id="@+id/lnDraw"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="15dp"
+            android:gravity="center"
+            android:orientation="vertical">
+        </LinearLayout>
+    </FrameLayout>
     <Button
         android:id="@+id/btnBack"
         android:layout_width="match_parent"

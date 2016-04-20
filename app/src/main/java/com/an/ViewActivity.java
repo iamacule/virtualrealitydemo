@@ -4,8 +4,8 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,20 +13,19 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.an.draw.DrawFocus;
+import com.an.dialog.DialogInfo;
 import com.an.draw.DrawMain;
+import com.an.util.DataUtil;
+import com.an.util.ResizeBitmap;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -39,50 +38,46 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private Button btnBack;
     private Thread threadRecord;
     private Bitmap bpData;
-    private boolean acceptRecord = true;
-    private ViewActivity viewActivity;
+    public static boolean acceptRecord = false;
+    public static ViewActivity viewActivity;
+    public static boolean isDataAvailable = false;
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     private final int MY_PERMISSIONS_REQUEST_STORAGE = 2;
     private SurfaceHolder surfaceHolder;
     private Camera.PictureCallback jpegCallback;
     private Camera camera;
-    private OrientationEventListener mOrientationEventListener;
-    private int mOrientation = -1;
-
-    private static final int ORIENTATION_PORTRAIT_NORMAL = 1;
-    private static final int ORIENTATION_PORTRAIT_INVERTED = 2;
-    private static final int ORIENTATION_LANDSCAPE_NORMAL = 3;
-    private static final int ORIENTATION_LANDSCAPE_INVERTED = 4;
     private final String TAG = "ViewActivity";
+    private Matrix matrix;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view);
+        viewActivity = this;
         checkPermission(Manifest.permission.CAMERA, MY_PERMISSIONS_REQUEST_CAMERA);
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_STORAGE);
         initParameter();
         addPictureCallBack();
-        record();
         setOnClick();
     }
 
-    private void record() {
+    public void record() {
         threadRecord = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (acceptRecord){
                     try{
                         Thread.sleep(2000);
+                        Log.d(TAG,"Recording");
                         captureImage();
                     }catch (Exception e){
                         e.printStackTrace();
-                        threadRecord = null;
                     }
                 }
             }
         });
         threadRecord.start();
+        Log.d(TAG,"Record started");
     }
 
     private void setOnClick() {
@@ -97,17 +92,25 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private void addPictureCallBack() {
         jpegCallback = new Camera.PictureCallback() {
             public void onPictureTaken(byte[] data, Camera camera) {
-                bpData = BitmapFactory.decodeByteArray(data,0,data.length);
-                if(bpData!=null){
+                bpData = BitmapFactory.decodeByteArray(data, 0, data.length);
+                if(bpData!=null && !isDataAvailable){
+                    bpData = rotateBitmap(bpData);
+                    bpData = ResizeBitmap.resize(bpData, DataUtil.screenWidth/4);
+                    refreshCamera();
                     Log.d("Get bitmap data success",""+bpData.toString());
+                    acceptRecord = false;
+                    isDataAvailable = true;
+                    DialogInfo.createDialogOneButton(viewActivity,"Image",bpData);
+                    DialogInfo.show();
                 }
-                refreshCamera();
             }
         };
     }
 
     private void initParameter() {
         viewActivity = this;
+        matrix = new Matrix();
+        matrix.postRotate(90);
         surfaceView = (SurfaceView) findViewById(R.id.surStream);
         lnDraw = (LinearLayout)findViewById(R.id.lnDraw);
         drawMain = new DrawMain(getApplicationContext(),this);
@@ -121,49 +124,9 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        registerOrientationListener();
-    }
-
-    private void registerOrientationListener() {
-        if (mOrientationEventListener == null) {
-            mOrientationEventListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
-
-                @Override
-                public void onOrientationChanged(int orientation) {
-                    if (orientation >= 315 || orientation < 45) {
-                        if (mOrientation != ORIENTATION_PORTRAIT_NORMAL) {
-                            mOrientation = ORIENTATION_PORTRAIT_NORMAL;
-                        }
-                    } else if (orientation < 315 && orientation >= 225) {
-                        if (mOrientation != ORIENTATION_LANDSCAPE_NORMAL) {
-                            mOrientation = ORIENTATION_LANDSCAPE_NORMAL;
-                        }
-                    } else if (orientation < 225 && orientation >= 135) {
-                        if (mOrientation != ORIENTATION_PORTRAIT_INVERTED) {
-                            mOrientation = ORIENTATION_PORTRAIT_INVERTED;
-                        }
-                    } else { // orientation <135 && orientation > 45
-                        if (mOrientation != ORIENTATION_LANDSCAPE_INVERTED) {
-                            mOrientation = ORIENTATION_LANDSCAPE_INVERTED;
-                        }
-                    }
-                    changeRotation(mOrientation);
-                }
-            };
-        }
-        if (mOrientationEventListener.canDetectOrientation()) {
-            mOrientationEventListener.enable();
-        }
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
-        mOrientationEventListener.disable();
         stopRecord();
     }
 
@@ -171,31 +134,14 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         if(threadRecord!=null&&threadRecord.isAlive()){
             threadRecord.interrupt();
             threadRecord = null;
-            Log.d("Stop record","");
         }
         acceptRecord = false;
+        Log.d(TAG,"Record stopped");
     }
 
-    /**
-     * Performs required action to accommodate new orientation
-     *
-     * @param orientation
-     */
-    private void changeRotation(int orientation) {
-        switch (orientation) {
-            case ORIENTATION_PORTRAIT_NORMAL:
-                camera.setDisplayOrientation(90);
-                break;
-            case ORIENTATION_LANDSCAPE_NORMAL:
-                camera.setDisplayOrientation(0);
-                break;
-            case ORIENTATION_PORTRAIT_INVERTED:
-                camera.setDisplayOrientation(270);
-                break;
-            case ORIENTATION_LANDSCAPE_INVERTED:
-                camera.setDisplayOrientation(180);
-                break;
-        }
+    public Bitmap rotateBitmap(Bitmap source)
+    {
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     public void captureImage() throws IOException {
@@ -227,6 +173,36 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         // Now that the size is known, set up the camera parameters and begin
         // the preview.
         refreshCamera();
+        camera.setDisplayOrientation(getRotationAngle());
+    }
+
+    public int getRotationAngle() {
+        android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+        android.hardware.Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, info);
+        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+        int result;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360; // compensate the mirror
+        } else { // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        return result;
     }
 
     public void surfaceCreated(SurfaceHolder holder) {

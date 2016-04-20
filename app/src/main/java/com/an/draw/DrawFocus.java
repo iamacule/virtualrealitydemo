@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.an.ViewActivity;
 import com.an.util.DataUtil;
 
 /**
@@ -93,6 +94,8 @@ public class DrawFocus implements Draw {
             super.onPostExecute(aBoolean);
             if(progressDialog.isShowing())
                 progressDialog.dismiss();
+            ViewActivity.acceptRecord = true;
+            ViewActivity.viewActivity.record();
         }
     }
 }

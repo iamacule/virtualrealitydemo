@@ -10,4 +10,6 @@ import java.util.List;
  */
 public class DataUtil {
     public static List<Point> listRangeFocus = new ArrayList<>();
+    public static float screenWidth;
+    public static float screenHeight;
 }
