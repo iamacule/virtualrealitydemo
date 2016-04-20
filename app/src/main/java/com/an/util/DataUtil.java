@@ -9,6 +9,8 @@ import java.util.List;
  * Created by MrAn on 19-Apr-16.
  */
 public class DataUtil {
+    public static final int BLACK = 0;
+    public static final int WHITE = 1;
     public static List<Point> listRangeFocus = new ArrayList<>();
     public static float screenWidth;
     public static float screenHeight;

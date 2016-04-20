@@ -23,9 +23,12 @@ import android.widget.Toast;
 
 import com.an.dialog.DialogInfo;
 import com.an.draw.DrawMain;
+import com.an.model.ViewModel;
 import com.an.util.DataUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by MrAn on 15-Apr-16.
@@ -47,6 +50,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private Camera camera;
     private final String TAG = "ViewActivity";
     private Matrix matrix;
+    private List<ViewModel> listModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -157,6 +161,18 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         surfaceHolder.addCallback(this);
         // deprecated setting, but required on Android versions prior to 3.0
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        createListModel();
+    }
+
+    private void createListModel() {
+        listModel = new ArrayList<>();
+        ViewModel covisoft = new ViewModel();
+        covisoft.setBpView(BitmapFactory.decodeResource(getResources(),R.mipmap.covisoft_logo));
+        int[] arrayId = {DataUtil.WHITE,DataUtil.BLACK,DataUtil.WHITE,DataUtil.BLACK,DataUtil.WHITE};
+        for (int i = 0;i<arrayId.length;i++){
+            covisoft.getId().add(arrayId[i]);
+        }
+        listModel.add(covisoft);
     }
 
     @Override
