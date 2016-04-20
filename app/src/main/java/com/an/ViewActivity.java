@@ -237,6 +237,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
         barcelona.setId(DataUtil.stringTemp.toString());
 
         ViewModel chelsea = new ViewModel();
@@ -246,12 +247,27 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
         chelsea.setId(DataUtil.stringTemp.toString());
 
         ViewModel mu = new ViewModel();
         mu.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.mu),
                 DataUtil.screenWidth/3));
         DataUtil.stringTemp = new StringBuffer();
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
