@@ -4,7 +4,9 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,7 +23,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.an.dialog.DialogInfo;
 import com.an.draw.DrawMain;
 import com.an.model.ViewModel;
 import com.an.util.DataUtil;
@@ -51,6 +52,8 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private final String TAG = "ViewActivity";
     private Matrix matrix;
     private List<ViewModel> listModel;
+    public static Bitmap defaultModel;
+    public static Bitmap transparentModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,7 +120,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
                      */
                     cropBitmap(bpData);
                     bpData = Bitmap.createBitmap(bpData, DataUtil.cropX, DataUtil.cropY, DataUtil.cropWidth, DataUtil.cropHeight);
-
+                    pickerBitmap(bpData);
                     //Refresh camera after get bitmap
                     refreshCamera();
 
@@ -129,6 +132,49 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 }
             }
         };
+    }
+
+    private void pickerBitmap(Bitmap bitmap) {
+        int y = bitmap.getHeight()/2;
+        Point p1 = new Point();
+        for (int x=0;x<bitmap.getWidth()/4;x++){
+            int colour = bitmap.getPixel(x,y);
+            int red = Color.red(colour);
+            int blue = Color.blue(colour);
+            int green = Color.green(colour);
+            if(red<50&&blue<50&&green<50){
+                p1.set(x,y);
+                Log.e(TAG,"Point 1 : "+p1.x+","+p1.y);
+                break;
+            }
+        }
+        StringBuilder pickerId = new StringBuilder();
+        boolean lookingForWhite = true;
+        for (int x=p1.x;x<bitmap.getWidth();x++){
+            int colour = bitmap.getPixel(x,y);
+            int red = Color.red(colour);
+            int blue = Color.blue(colour);
+            int green = Color.green(colour);
+            if (lookingForWhite){
+                if(red>50&&blue>50&&green>50){
+                    pickerId.append(DataUtil.WHITE);
+                    lookingForWhite = false;
+                }
+            }else {
+                if(red<50&&blue<50&&green<50){
+                    pickerId.append(DataUtil.BLACK);
+                    lookingForWhite = true;
+                }
+            }
+        }
+        Log.e(TAG,"PickerID : "+pickerId.toString());
+        for (ViewModel viewModel : listModel){
+            if(viewModel.getId().equals(pickerId.toString())){
+                defaultModel = viewModel.getBpView();
+            }else {
+                defaultModel = transparentModel;
+            }
+        }
     }
 
     /**
@@ -150,6 +196,9 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         viewActivity = this;
         matrix = new Matrix();
         matrix.postRotate(90);
+        transparentModel = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        transparentModel.eraseColor(Color.TRANSPARENT);
+        defaultModel = transparentModel;
         surfaceView = (SurfaceView) findViewById(R.id.surStream);
         lnDraw = (LinearLayout) findViewById(R.id.lnDraw);
         drawMain = new DrawMain(getApplicationContext(), this);
@@ -168,10 +217,14 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         listModel = new ArrayList<>();
         ViewModel covisoft = new ViewModel();
         covisoft.setBpView(BitmapFactory.decodeResource(getResources(),R.mipmap.covisoft_logo));
-        int[] arrayId = {DataUtil.WHITE,DataUtil.BLACK,DataUtil.WHITE,DataUtil.BLACK,DataUtil.WHITE};
-        for (int i = 0;i<arrayId.length;i++){
-            covisoft.getId().add(arrayId[i]);
-        }
+        DataUtil.stringTemp = new StringBuffer();
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        covisoft.setId(DataUtil.stringTemp.toString());
+        Log.d(TAG,"String id : "+covisoft.getId());
         listModel.add(covisoft);
     }
 

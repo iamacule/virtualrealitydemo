@@ -9,25 +9,22 @@ import java.util.List;
  * Created by MrAn on 20-Apr-16.
  */
 public class ViewModel {
-    private List<Integer> id;
+    private String id;
     private Bitmap bpView;
 
     public ViewModel() {
     }
 
-    public ViewModel(List<Integer> id, Bitmap bpView) {
+    public ViewModel(String id, Bitmap bpView) {
         this.id = id;
         this.bpView = bpView;
     }
 
-    public List<Integer> getId() {
-        if (id==null) {
-            id = new ArrayList<>();
-        }
+    public String getId() {
         return id;
     }
 
-    public void setId(List<Integer> id) {
+    public void setId(String id) {
         this.id = id;
     }
 

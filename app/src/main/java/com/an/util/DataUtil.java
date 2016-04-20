@@ -18,4 +18,5 @@ public class DataUtil {
     public static int cropY = 0;
     public static int cropWidth = 0;
     public static int cropHeight = 0;
+    public static StringBuffer stringTemp = new StringBuffer();
 }
