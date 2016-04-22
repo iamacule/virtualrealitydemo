@@ -12,14 +12,26 @@ public class ViewModel {
     private String id;
     private Bitmap bpView;
     private String modelName;
+    private boolean isDynamic;
+    private List<Bitmap> listBpView;
 
     public ViewModel() {
     }
 
-    public ViewModel(String id, Bitmap bpView,String modelName) {
-        this.id = id;
-        this.bpView = bpView;
-        this.modelName = modelName;
+    public boolean isDynamic() {
+        return isDynamic;
+    }
+
+    public void setDynamic(boolean dynamic) {
+        isDynamic = dynamic;
+    }
+
+    public List<Bitmap> getListBpView() {
+        return listBpView;
+    }
+
+    public void setListBpView(List<Bitmap> listBpView) {
+        this.listBpView = listBpView;
     }
 
     public String getModelName() {

@@ -55,6 +55,8 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private List<ViewModel> listModel;
     public static Bitmap defaultModel;
     public static Bitmap transparentModel;
+    public static boolean isStatic = true;
+    public static List<Bitmap> listDynamicBP;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -172,8 +174,19 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
             String sub = pickerId.substring(0,pickerId.length()-2);
             for (ViewModel viewModel : listModel){
                 if(viewModel.getId().equals(sub)){
-                    defaultModel = viewModel.getBpView();
                     Log.e(TAG,"Picker Name : "+viewModel.getModelName());
+                    if(!viewModel.isDynamic()){
+                        defaultModel = viewModel.getBpView();
+                    }else {
+                        for (int i = 0;i<viewModel.getListBpView().size();i++){
+                            try{
+                                Thread.sleep(100);
+                                defaultModel = viewModel.getListBpView().get(i);
+                            }catch (Exception e){
+
+                            }
+                        }
+                    }
                     break;
                 }
             }
@@ -198,6 +211,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
      * Init value from begin
      */
     private void initParameter() {
+        listDynamicBP = new ArrayList<>();
         viewActivity = this;
         matrix = new Matrix();
         matrix.postRotate(90);
@@ -231,6 +245,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.WHITE);
         covisoft.setId(DataUtil.stringTemp.toString());
         covisoft.setModelName("Covisoft");
+        covisoft.setDynamic(false);
 
         ViewModel barcelona = new ViewModel();
         barcelona.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.barcelona),
@@ -245,6 +260,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.WHITE);
         barcelona.setId(DataUtil.stringTemp.toString());
         barcelona.setModelName("Barcelona");
+        barcelona.setDynamic(false);
 
         ViewModel chelsea = new ViewModel();
         chelsea.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.chelsea),
@@ -263,6 +279,7 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.WHITE);
         chelsea.setId(DataUtil.stringTemp.toString());
         chelsea.setModelName("Chelsea");
+        chelsea.setDynamic(false);
 
         ViewModel mu = new ViewModel();
         mu.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.mu),
@@ -279,22 +296,54 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.WHITE);
         mu.setId(DataUtil.stringTemp.toString());
         mu.setModelName("MU");
-
-        ViewModel real = new ViewModel();
-        real.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.real),
-                DataUtil.screenWidth/2));
-        DataUtil.stringTemp = new StringBuffer();
-        DataUtil.stringTemp.append(DataUtil.WHITE);
-        DataUtil.stringTemp.append(DataUtil.BLACK);
-        DataUtil.stringTemp.append(DataUtil.WHITE);
-        real.setId(DataUtil.stringTemp.toString());
-        real.setModelName("Real");
+        mu.setDynamic(false);
 
         listModel.add(covisoft);
         listModel.add(barcelona);
         listModel.add(chelsea);
         listModel.add(mu);
-        listModel.add(real);
+
+        createListModelDynamic();
+    }
+
+    private void createListModelDynamic() {
+        listDynamicBP.clear();
+        Bitmap bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_1),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+        bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_2),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+        bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_3),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+        bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_4),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+        bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_5),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+        bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_6),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+        bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_7),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+        bp = ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.animal_8),
+                DataUtil.screenWidth/2);
+        listDynamicBP.add(bp);
+
+        ViewModel dynamic = new ViewModel();
+        DataUtil.stringTemp = new StringBuffer();
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        DataUtil.stringTemp.append(DataUtil.BLACK);
+        DataUtil.stringTemp.append(DataUtil.WHITE);
+        dynamic.setId(DataUtil.stringTemp.toString());
+        dynamic.setModelName("Dymamic");
+        dynamic.setDynamic(true);
+        dynamic.setListBpView(listDynamicBP);
+
+        listModel.add(dynamic);
     }
 
     @Override
