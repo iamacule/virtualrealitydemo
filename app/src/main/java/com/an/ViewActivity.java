@@ -145,7 +145,6 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
             int green = Color.green(colour);
             if(red<50&&blue<50&&green<50){
                 p1.set(x,y);
-                Log.e(TAG,"Point 1 : "+p1.x+","+p1.y);
                 break;
             }
         }
@@ -168,13 +167,18 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 }
             }
         }
-        Log.e(TAG,"PickerID : "+pickerId.toString());
-        for (ViewModel viewModel : listModel){
-            if(viewModel.getId().equals(pickerId.toString())){
-                defaultModel = viewModel.getBpView();
-            }else {
-                defaultModel = transparentModel;
+
+        if(pickerId.length()>=3){
+            String sub = pickerId.substring(0,pickerId.length()-2);
+            for (ViewModel viewModel : listModel){
+                if(viewModel.getId().equals(sub)){
+                    defaultModel = viewModel.getBpView();
+                    Log.e(TAG,"Picker Name : "+viewModel.getModelName());
+                    break;
+                }
             }
+        } else {
+            defaultModel = transparentModel;
         }
     }
 
@@ -226,10 +230,11 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         covisoft.setId(DataUtil.stringTemp.toString());
+        covisoft.setModelName("Covisoft");
 
         ViewModel barcelona = new ViewModel();
         barcelona.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.barcelona),
-                                DataUtil.screenWidth/3));
+                                DataUtil.screenWidth/2));
         DataUtil.stringTemp = new StringBuffer();
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
@@ -239,16 +244,16 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         barcelona.setId(DataUtil.stringTemp.toString());
+        barcelona.setModelName("Barcelona");
 
         ViewModel chelsea = new ViewModel();
         chelsea.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.chelsea),
-                DataUtil.screenWidth/3));
+                DataUtil.screenWidth/2));
         DataUtil.stringTemp = new StringBuffer();
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
-        DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
@@ -257,31 +262,33 @@ public class ViewActivity extends AppCompatActivity implements SurfaceHolder.Cal
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         chelsea.setId(DataUtil.stringTemp.toString());
+        chelsea.setModelName("Chelsea");
 
         ViewModel mu = new ViewModel();
         mu.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.mu),
-                DataUtil.screenWidth/3));
+                DataUtil.screenWidth/2));
         DataUtil.stringTemp = new StringBuffer();
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
-        DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         mu.setId(DataUtil.stringTemp.toString());
+        mu.setModelName("MU");
 
         ViewModel real = new ViewModel();
         real.setBpView(ResizeBitmap.resize(BitmapFactory.decodeResource(getResources(),R.mipmap.real),
-                DataUtil.screenWidth/3));
+                DataUtil.screenWidth/2));
         DataUtil.stringTemp = new StringBuffer();
         DataUtil.stringTemp.append(DataUtil.WHITE);
         DataUtil.stringTemp.append(DataUtil.BLACK);
         DataUtil.stringTemp.append(DataUtil.WHITE);
         real.setId(DataUtil.stringTemp.toString());
+        real.setModelName("Real");
 
         listModel.add(covisoft);
         listModel.add(barcelona);

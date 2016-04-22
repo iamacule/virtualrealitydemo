@@ -11,13 +11,23 @@ import java.util.List;
 public class ViewModel {
     private String id;
     private Bitmap bpView;
+    private String modelName;
 
     public ViewModel() {
     }
 
-    public ViewModel(String id, Bitmap bpView) {
+    public ViewModel(String id, Bitmap bpView,String modelName) {
         this.id = id;
         this.bpView = bpView;
+        this.modelName = modelName;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
     public String getId() {

@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 
+import com.an.ViewActivity;
+
 /**
  * Created by MrAn on 20-Apr-16.
  */
